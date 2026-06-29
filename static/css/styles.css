@@ -51,3 +51,40 @@ body {
     color: #27ae60;
     font-weight: bold;
 }
+
+/* Estilos para la sección de chats */
+.item-chat {
+    margin-bottom: 15px;
+    padding: 10px 0;
+}
+
+.ultimo-msg {
+    font-style: italic;
+    color: #7f8c8d;
+    margin: 5px 0;
+}
+
+/* Las etiquetas de estado */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.badge.bot {
+    background-color: #ebf5fb;
+    color: #2980b9;
+}
+
+.badge.urgente {
+    background-color: #fdebd0;
+    color: #e67e22;
+    border: 1px solid #e67e22;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #f2f4f4;
+}

@@ -9,8 +9,18 @@
     <div class="bento-contenedor">
         <div class="tarjeta calendario">
             <h2>📅 Citas de hoy</h2>
-            <p>10:00 - Toby (Vacuna)</p>
-            <p>11:30 - Luna (Revisión)</p>
+
+            {% if mis_citas%}
+
+                {% for cita in mis_citas%}
+                <p><strong>{{cita.hora}}</strong> - {{cita.paciente}} ({{cita.motivo}})</p>
+                {% endfor %}
+
+            {% else %}
+
+            ¡Enhorabuena! No quedan más citas por hoy
+            {% endif %}
+
         </div>
 
         <div class="tarjeta estado-bot">
@@ -19,8 +29,23 @@
         </div>
 
         <div class="tarjeta alertas">
-            <h2>⚠️ Alertas Humanas</h2>
-            <p>Ningún chat requiere atención manual ahora mismo.</p>
+            <h2>💬 Chats en Tiempo Real</h2>
+
+            <div class="lista-chats">
+                {% for chat in los_chats %}
+                <div class="item-chat">
+                    <strong>{{chat.usuario}}</strong>
+                    <p class="ultimo-msg">"{{chat.mensaje}}"</p>
+
+                    {% if chat.atendido_por == "Humano" %}
+                        <span class="badge urgente">🚨 Requiere Humano</span>
+                    {% else %}
+                        <span class="badge bot">🤖 Respondido por IA</span>
+                    {% endif %}
+                </div>
+                <hr>
+                {% endfor %}
+            </div>
         </div>
 
         <div class="tarjeta estadisticas">
