@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Veterinario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="bento-contenedor">
+        <div class="tarjeta calendario">
+            <h2>📅 Citas de hoy</h2>
+            <p>10:00 - Toby (Vacuna)</p>
+            <p>11:30 - Luna (Revisión)</p>
+        </div>
+
+        <div class="tarjeta estado-bot">
+            <h2>🤖 Estado del Bot</h2>
+            <p class="activo">● Inteligencia Artificial Activada</p>
+        </div>
+
+        <div class="tarjeta alertas">
+            <h2>⚠️ Alertas Humanas</h2>
+            <p>Ningún chat requiere atención manual ahora mismo.</p>
+        </div>
+
+        <div class="tarjeta estadisticas">
+            <h2>📊 Resumen del Mes</h2>
+            <p>Citas gestionadas: <strong>48</strong></p>
+        </div>
+    </div>
+</body>
+</html>

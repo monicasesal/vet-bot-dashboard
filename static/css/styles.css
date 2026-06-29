@@ -1,0 +1,53 @@
+/* Configuración general del fondo de la pantalla */
+body {
+    background-color: #f4f7f6;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+/* Contenedor que activa el modo GRID */
+.bento-contenedor {
+    display: grid;
+    /* 3 columnas del mismo tamaño */
+    grid-template-columns: repeat(3, 1fr);
+    /* Altura automática de las filas */
+    grid-auto-rows: minmax(150px, auto);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Estilo común para TODAS las tarjetas */
+.tarjeta {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2f1;
+}
+
+.tarjeta h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+/* REGLAS ESPECIALES PARA POSICIONAR CADA TARJETA */
+
+/* Que el calendario ocupe 2 columnas de ancho y 2 filas de alto */
+.calendario {
+    grid-column: span 2;
+    grid-row: span 2;
+    background-color: #ffffff;
+    border-left: 5px solid #2ecc71;
+}
+
+.estado-bot {
+    background-color: #e8f8f5;
+}
+.activo {
+    color: #27ae60;
+    font-weight: bold;
+}
