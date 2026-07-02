@@ -7,21 +7,8 @@
 </head>
 <body>
     <div class="bento-contenedor">
-        <div class="tarjeta calendario">
-            <h2>📅 Citas de hoy</h2>
 
-            {% if mis_citas%}
-
-                {% for cita in mis_citas%}
-                <p><strong>{{cita.hora}}</strong> - {{cita.paciente}} ({{cita.motivo}})</p>
-                {% endfor %}
-
-            {% else %}
-
-            ¡Enhorabuena! No quedan más citas por hoy
-            {% endif %}
-
-        </div>
+        {% include 'components/tarjeta_calendario.html' %}
 
         <div class="tarjeta estado-bot">
             <h2>🤖 Estado del Bot</h2>

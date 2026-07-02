@@ -1,0 +1,21 @@
+        <div class="tarjeta calendario">
+            <h2>📅 Citas de hoy</h2>
+
+            {% if mis_citas %}
+                {% for cita in mis_citas%}
+                <p><strong>{{cita.hora}}</strong> - {{cita.paciente}} ({{cita.motivo}})</p>
+                {% endfor %}
+            {% else %}
+            ¡Enhorabuena! No quedan más citas por hoy
+            {% endif %}
+
+            <hr>
+
+            <form action="/nueva-cita" method="POST" class="formulario-cita">
+                <h3>Añadir cita manual</h3>
+                <input type="text" name="hora" placeholder="Ej: 18:00" required>
+                <input type="text" name="paciente" placeholder="Nombre de la mascota" required>
+                <input type="text" name="motivo" placeholder="Motivo de la visita" required>
+                <button type="submit">Guardar cita</button>
+            </form>
+        </div>
