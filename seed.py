@@ -1,6 +1,7 @@
 import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -19,9 +20,30 @@ nuevas_citas = [
 
 # Datos de prueba para los Chats de la IA
 nuevos_chats = [
-    {"usuario": "Roberto (Dueño de Max)", "mensaje": "Ya vamos de camino a la clínica", "atendido_por": "IA"},
-    {"usuario": "Lucía (Dueña de Kira)", "mensaje": "¿A qué hora tengo que dejarla en ayunas?", "atendido_por": "Humano"},
-    {"usuario": "Pedro (Dueño de Copito)", "mensaje": "Todo perfecto, gracias", "atendido_por": "IA"}
+    {
+        "telefono": "+34600111222",
+        "nombre": "Roberto (Dueño de Max)", 
+        "mensaje": "Ya vamos de camino a la clínica", 
+        "rol": "user",
+        "atendido_por": "bot",
+        "fecha": datetime.now()
+    },
+    {
+        "telefono": "+34600333444",
+        "nombre": "Lucía (Dueña de Kira)",
+        "mensaje": "¿A qué hora tengo que dejarla en ayunas?",
+        "rol": "user",
+        "atendido_por": "humano",
+        "fecha": datetime.now()    
+    },
+    {
+        "telefono": "+34600555666",
+        "nombre": "Pedro (Dueño de Copito)",
+        "mensaje": "Todo perfecto, gracias",
+        "rol": "user",
+        "atendido_por": "bot",
+        "fecha": datetime.now()    
+    }
 ]
 
 # Borrar lo que hubiera antes para no duplicar y guardar los nuevos datos
@@ -31,4 +53,4 @@ db.chats.drop()
 db.citas.insert_many(nuevas_citas)
 db.chats.insert_many(nuevos_chats)
 
-print("¡Datos insertados con éxito en la nube!")
+print("Datos insertados con éxito en la nube")

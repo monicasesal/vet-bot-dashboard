@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Chats - VetBot Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+</head>
+<body>
+
+<div class="app-container">
+    <!-- PANEL LATERAL -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            💬 Conversaciones Activas
+        </div>
+        <div class="chat-list">
+            {% for conv in conversaciones %}
+            <a href="{{ url_for('web.chat_admin', telefono=conv.telefono) }}" class="chat-item {% if chat_actual and chat_actual.telefono == conv.telefono %}active{% endif %}">
+                <div class="avatar">
+                    {% if conv.foto_url %}
+                        <img src="{{ conv.foto_url }}" alt="Foto" style="width:100%; height:100%; border-radius:50%;">
+                    {% else %}
+                        {{ conv.nombre[0] if conv.nombre else 'C' }}
+                    {% endif %}
+                </div>
+                <div class="chat-info">
+                    <div class="chat-name">
+                        <span>{{ conv.nombre or conv.telefono }}</span>
+                        <span class="badge-mode {% if conv.atendido_por == 'humano' %}badge-humano{% else %}badge-bot{% endif %}">
+                            {{ conv.atendido_por or 'bot' }}
+                        </span>
+                    </div>
+                    <div class="chat-last-msg">{{ conv.ultimo_mensaje }}</div>
+                </div>
+            </a>
+            {% else %}
+            <div style="padding: 20px; text-align: center; color: #888;">No hay conversaciones guardadas.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PANEL DE CHAT -->
+    {% if chat_actual %}
+    <div class="chat-panel">
+        <div class="chat-header">
+            <div class="chat-header-user">
+                <div class="avatar">{{ chat_actual.nombre[0] }}</div>
+                <div>
+                    <div class="chat-name" style="font-size: 16px;">{{ chat_actual.nombre }}</div>
+                    <div style="font-size: 12px; color: #667781;">{{ chat_actual.telefono }}</div>
+                </div>
+            </div>
+
+            <!-- SELECTOR DE ESTADO: IA vs HUMANO -->
+            <form action="{{ url_for('web.cambiar_estado') }}" method="POST" style="display: flex; align-items: center; gap: 8px;">
+                <input type="hidden" name="telefono" value="{{ chat_actual.telefono }}">
+                <label for="atendido_por" style="font-size: 13px; font-weight: 600; color: #546e7a;">Atendido por:</label>
+                <select name="atendido_por" onchange="this.form.submit()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; cursor: pointer;">
+                    <option value="bot" {% if chat_actual.atendido_por == 'bot' %}selected{% endif %}>🤖 Bot (IA)</option>
+                    <option value="humano" {% if chat_actual.atendido_por == 'humano' %}selected{% endif %}>👨‍⚕️ Veterinario (Humano)</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="messages-container">
+            {% for msg in mensajes %}
+            <div class="message-bubble {% if msg.rol == 'user' %}message-user{% else %}message-assistant{% endif %}">
+                <div class="message-role">
+                    {% if msg.rol == 'user' %}
+                        {{ chat_actual.nombre }}
+                    {% else %}
+                        {% if msg.atendido_por == 'humano' %}
+                            👨‍⚕️ VetBot (Humano)
+                        {% else %}
+                            🤖 VetBot (IA)
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {{ msg.mensaje }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Responder como Veterinario -->
+        <form class="chat-input-area" action="{{ url_for('web.enviar_mensaje_admin') }}" method="POST">
+            <input type="hidden" name="telefono" value="{{ chat_actual.telefono }}">
+            <input type="text" name="mensaje" placeholder="Escribe un mensaje como veterinario..." required autocomplete="off">
+            <button type="submit" class="btn-send">Enviar</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>Panel de Gestión de Mensajes</h2>
+        <p style="margin-top: 8px;">Selecciona una conversación de la lista de la izquierda para ver los mensajes.</p>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
