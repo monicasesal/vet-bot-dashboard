@@ -1,21 +1,62 @@
-        <div class="tarjeta calendario">
-            <h2>📅 Citas de hoy</h2>
+<div class="tarjeta calendario">
+    <h2>📅 Citas de Hoy / Agendadas</h2>
 
-            {% if mis_citas %}
-                {% for cita in mis_citas%}
-                <p><strong>{{cita.hora}}</strong> - {{cita.paciente}} ({{cita.motivo}})</p>
-                {% endfor %}
-            {% else %}
-            ¡Enhorabuena! No quedan más citas por hoy
-            {% endif %}
+    <!-- Formulario para Añadir Nueva Cita -->
+    <form class="form-nueva-cita" action="{{ url_for('web.nueva_cita') }}" method="POST">
+        <input type="text" name="hora" class="input-hora" placeholder="Ej: 10:30" required>
+        <input type="text" name="paciente" class="input-texto" placeholder="Nombre paciente/mascota" required>
+        <input type="text" name="motivo" class="input-texto" placeholder="Motivo consulta" required>
+        <button type="submit" class="btn-agregar">+ Añadir</button>
+    </form>
 
-            <hr>
+    <hr>
 
-            <form action="/nueva-cita" method="POST" class="formulario-cita">
-                <h3>Añadir cita manual</h3>
-                <input type="text" name="hora" placeholder="Ej: 18:00" required>
-                <input type="text" name="paciente" placeholder="Nombre de la mascota" required>
-                <input type="text" name="motivo" placeholder="Motivo de la visita" required>
-                <button type="submit">Guardar cita</button>
-            </form>
+    <!-- Listado de Citas con Editar y Eliminar -->
+    <div class="lista-citas">
+        {% for cita in mis_citas %}
+        <div class="cita-card">
+            <div class="cita-info">
+                <strong>🕒 {{ cita.hora }}</strong> - 🐾 <strong>{{ cita.paciente }}</strong>
+                <p class="cita-motivo">{{ cita.motivo }}</p>
+            </div>
+
+            <div class="cita-acciones">
+                <button type="button" class="btn-editar" onclick="document.getElementById('modal-editar-{{ cita._id }}').style.display='flex'">
+                    ✏️
+                </button>
+
+                <form class="form-inline" action="{{ url_for('web.eliminar_cita', id=cita._id) }}" method="POST" onsubmit="return confirm('¿Seguro que quieres cancelar esta cita?');">
+                    <button type="submit" class="btn-eliminar">🗑️</button>
+                </form>
+            </div>
         </div>
+
+        <!-- MODAL FLOTANTE PARA EDITAR LA CITA -->
+        <div id="modal-editar-{{ cita._id }}" class="modal-overlay">
+            <div class="modal-contenido">
+                <h3>✏️ Editar Cita</h3>
+                <form action="{{ url_for('web.editar_cita', id=cita._id) }}" method="POST">
+                    <div class="campo-form">
+                        <label>Hora:</label>
+                        <input type="text" name="hora" value="{{ cita.hora }}" required>
+                    </div>
+                    <div class="campo-form">
+                        <label>Paciente:</label>
+                        <input type="text" name="paciente" value="{{ cita.paciente }}" required>
+                    </div>
+                    <div class="campo-form">
+                        <label>Motivo:</label>
+                        <input type="text" name="motivo" value="{{ cita.motivo }}" required>
+                    </div>
+                    <div class="modal-acciones">
+                        <button type="button" class="btn-cancelar" onclick="document.getElementById('modal-editar-{{ cita._id }}').style.display='none'">Cancelar</button>
+                        <button type="submit" class="btn-guardar">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p class="citas-vacias">No hay citas agendadas.</p>
+        {% endfor %}
+    </div>
+</div>

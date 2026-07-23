@@ -1,0 +1,10 @@
+/* Componente: Estado del Bot */
+.tarjeta.estado-bot {
+    background-color: #e8f8f5;
+}
+
+.activo-bot {
+    color: #27ae60;
+    font-weight: bold;
+    margin-top: 10px;
+}

@@ -1,0 +1,19 @@
+<div class="tarjeta alertas">
+    <h2>💬 Chats en Tiempo Real</h2>
+
+    <div class="lista-chats">
+        {% for chat in los_chats %}
+        <div class="item-chat">
+            <strong>{{ chat.usuario }}</strong>
+            <p class="ultimo-msg">"{{ chat.mensaje }}"</p>
+
+            {% if chat.atendido_por == "Humano" %}
+                <span class="badge urgente">🚨 Requiere Humano</span>
+            {% else %}
+                <span class="badge bot">🤖 Respondido por IA</span>
+            {% endif %}
+        </div>
+        <hr>
+        {% endfor %}
+    </div>
+</div>

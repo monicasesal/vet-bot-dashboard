@@ -3,42 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Panel Veterinario</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Hojas de estilos moduladas -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bento_layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_calendario.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_estado_bot.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_chats_rt.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_estadisticas.css') }}">
 </head>
 <body>
     <div class="bento-contenedor">
-
         {% include 'components/tarjeta_calendario.html' %}
-
-        <div class="tarjeta estado-bot">
-            <h2>🤖 Estado del Bot</h2>
-            <p class="activo">● Inteligencia Artificial Activada</p>
-        </div>
-
-        <div class="tarjeta alertas">
-            <h2>💬 Chats en Tiempo Real</h2>
-
-            <div class="lista-chats">
-                {% for chat in los_chats %}
-                <div class="item-chat">
-                    <strong>{{chat.usuario}}</strong>
-                    <p class="ultimo-msg">"{{chat.mensaje}}"</p>
-
-                    {% if chat.atendido_por == "Humano" %}
-                        <span class="badge urgente">🚨 Requiere Humano</span>
-                    {% else %}
-                        <span class="badge bot">🤖 Respondido por IA</span>
-                    {% endif %}
-                </div>
-                <hr>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="tarjeta estadisticas">
-            <h2>📊 Resumen del Mes</h2>
-            <p>Citas gestionadas: <strong>48</strong></p>
-        </div>
+        {% include 'components/tarjeta_estado_bot.html' %}
+        {% include 'components/tarjeta_chats_rt.html' %}
+        {% include 'components/tarjeta_estadisticas.html' %}
     </div>
 </body>
 </html>

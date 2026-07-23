@@ -1,0 +1,20 @@
+<div class="tarjeta estadisticas">
+    <h2>📊 Resumen de Citas</h2>
+    
+    <div class="contenedor-stats">
+        <div class="caja-stat">
+            <span class="etiqueta-stat">HOY</span>
+            <p class="numero-stat dia">{{ stats.dia if stats else 0 }}</p>
+        </div>
+
+        <div class="caja-stat">
+            <span class="etiqueta-stat">ESTA SEMANA</span>
+            <p class="numero-stat semana">{{ stats.semana if stats else 0 }}</p>
+        </div>
+
+        <div class="caja-stat">
+            <span class="etiqueta-stat">ESTE MES</span>
+            <p class="numero-stat mes">{{ stats.mes if stats else 0 }}</p>
+        </div>
+    </div>
+</div>

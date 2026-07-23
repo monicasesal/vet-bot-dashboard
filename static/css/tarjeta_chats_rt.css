@@ -1,0 +1,36 @@
+/* Componente: Chats en Tiempo Real */
+.lista-chats {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.item-chat {
+    margin-bottom: 12px;
+    padding: 8px 0;
+}
+
+.ultimo-msg {
+    font-style: italic;
+    color: #7f8c8d;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.badge.bot {
+    background-color: #ebf5fb;
+    color: #2980b9;
+}
+
+.badge.urgente {
+    background-color: #fdebd0;
+    color: #e67e22;
+    border: 1px solid #e67e22;
+}

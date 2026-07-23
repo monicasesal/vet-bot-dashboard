@@ -1,0 +1,41 @@
+/* Componente: Estadísticas de Citas */
+.contenedor-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.caja-stat {
+    flex: 1;
+    text-align: center;
+    background-color: #f8f9fa;
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.etiqueta-stat {
+    font-size: 11px;
+    color: #6c757d;
+    font-weight: bold;
+    display: block;
+}
+
+.numero-stat {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 6px 0 0 0;
+}
+
+.numero-stat.dia {
+    color: #1976d2;
+}
+
+.numero-stat.semana {
+    color: #1976d2;
+}
+
+.numero-stat.mes {
+    color: #1976d2;
+}
