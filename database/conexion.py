@@ -3,6 +3,7 @@
 import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from bson.objectid import ObjectId
 
 load_dotenv()
 
@@ -34,3 +35,13 @@ def cambiar_estado_chat(telefono, nuevo_estado):
         {"telefono": telefono},
         {"$set": {"atendido_por": nuevo_estado}}
     )
+
+def eliminar_cita_db(cita_id):
+    """Elimina una cita por su ID de MongoDB"""
+    db.citas.delete_one({"_id": ObjectId(cita_id)})
+
+def actualizar_cita_db(cita_id, datos_actualizados):
+    """Actualiza los datos de una cita existente"""
+    db.citas.update_one({"_id": ObjectId(cita_id)}, {"$set": datos_actualizados})
+
+    
