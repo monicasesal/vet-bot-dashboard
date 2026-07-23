@@ -1,0 +1,27 @@
+<div class="tarjeta form-agendar">
+    <h2>➕ Agendar Nueva Cita</h2>
+
+    <form action="{{ url_for('web.nueva_cita') }}" method="POST" class="form-agendar-grid">
+        <div class="grupo-input">
+            <label>Fecha:</label>
+            <input type="date" name="fecha" value="{{ fecha_hoy }}" required>
+        </div>
+
+        <div class="grupo-input">
+            <label>Hora:</label>
+            <input type="time" name="hora" required>
+        </div>
+
+        <div class="grupo-input">
+            <label>Paciente / Mascota:</label>
+            <input type="text" name="paciente" placeholder="Ej: Toby (Caniche)" required>
+        </div>
+
+        <div class="grupo-input full-width">
+            <label>Motivo de consulta:</label>
+            <textarea name="motivo" rows="2" placeholder="Describa el motivo o síntomas..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-guardar-cita">Guardar Cita</button>
+    </form>
+</div>

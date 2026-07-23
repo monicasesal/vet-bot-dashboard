@@ -11,13 +11,31 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_estado_bot.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_chats_rt.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tarjeta_estadisticas.css') }}">
+    
 </head>
 <body>
+
+    <!-- Mensajes Flash de Advertencia / Éxito -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerta-contenedor-flotante">
+            {% for category, message in messages %}
+                <div class="alerta {{ category }}">
+                    <span>{{ message }}</span>
+                    <button type="button" class="btn-cerrar-alerta" onclick="this.parentElement.remove();">×</button>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <div class="bento-contenedor">
+
+        {% include 'components/tarjeta_nueva_cita.html' %}
         {% include 'components/tarjeta_calendario.html' %}
-        {% include 'components/tarjeta_estado_bot.html' %}
         {% include 'components/tarjeta_chats_rt.html' %}
         {% include 'components/tarjeta_estadisticas.html' %}
+        {% include 'components/tarjeta_estado_bot.html' %}
     </div>
 </body>
 </html>

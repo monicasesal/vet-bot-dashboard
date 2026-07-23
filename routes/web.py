@@ -1,9 +1,10 @@
 # Rutas de la página web (bento grid) // Blueprint = Router
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from urllib.parse import unquote
 from database.conexion import db, obtener_conversaciones, cambiar_estado_chat, eliminar_cita_db, actualizar_cita_db
 from datetime import datetime, timedelta
+from bson.objectid import ObjectId
 
 web_blueprint = Blueprint('web', __name__)
 
@@ -22,6 +23,9 @@ def inicio():
     inicio_semana = hoy - timedelta(days=hoy.weekday())
     inicio_semana_str = inicio_semana.strftime('%Y-%m-%d')
     inicio_mes_str = hoy.strftime('%Y-%m-01')
+
+    # Filtrar solo las citas de hoy para la tarjeta principal
+    citas_hoy = [c for c in citas_desde_mongo if c.get('fecha') == fecha_hoy_str or not c.get('fecha')]
 
     # Cálculos dinámicos
     citas_dia = 0
@@ -51,26 +55,44 @@ def inicio():
         'mes': citas_mes
     }
 
-    return render_template('index.html', mis_citas=citas_desde_mongo, los_chats=chats_desde_mongo, stats=stats_citas)
+    return render_template('index.html', mis_citas_hoy=citas_hoy, los_chats=chats_desde_mongo, stats=stats_citas, fecha_hoy=fecha_hoy_str)
 
 
 @web_blueprint.route('/nueva-cita', methods=['POST'])
 def nueva_cita():
     #recibe los datos del form, crea una nueva cita, la guarda en MongoDB y redirige a la pag principal
     hora_form = request.form.get('hora')
+    fecha_form = request.form.get('fecha')
     paciente_form = request.form.get('paciente')
     motivo_form = request.form.get('motivo')
 
+    if not fecha_form:
+        fecha_form = datetime.now().strftime('%Y-%m-%d')
+
+    #comprobar duplicado en la FECHA especificada y HORA especificada
+    cita_existente = db.citas.find_one({
+        'fecha': fecha_form,
+        'hora': hora_form
+    })
+
+    if cita_existente:
+        paciente_ocupado = cita_existente.get('paciente', 'otro paciente')
+        flash(f'⚠️ ¡Atención! Ya existe una cita para el día {fecha_form} a las {hora_form} hs (Paciente: {paciente_ocupado}).', 'warning')
+        return redirect('/')
+    
+    #guardar la cita con su fecha real
     cita_nueva = {
+        "fecha": fecha_form,
         "hora": hora_form,
         "paciente": paciente_form,
-        "motivo": motivo_form,
-        "fecha": datetime.now().strftime('%Y-%m-%d')
+        "motivo": motivo_form
     }
 
     #insertar en la colección correspondiente
     db.citas.insert_one(cita_nueva)
+    flash('✅ Cita agendada con éxito.', 'success')
     return redirect('/')
+
 
 @web_blueprint.route('/chat')
 def chat_admin():
@@ -139,15 +161,30 @@ def eliminar_cita(id):
 
 @web_blueprint.route('/editar-cita/<id>', methods=['POST'])
 def editar_cita(id):
+    fecha_form = request.form.get('fecha')
     hora_form = request.form.get('hora')
     paciente_form = request.form.get('paciente')
     motivo_form = request.form.get('motivo')
 
+    #Validar que otra cita no ocupe ese mismo día y hora
+    cita_duplicada = db.citas.find_one({
+        '_id': {'$ne': ObjectId(id)},
+        'fecha': fecha_form,
+        'hora': hora_form
+    })
+
+    if cita_duplicada:
+        paciente_ocupado = cita_duplicada.get('paciente', 'otro paciente')
+        flash(f'⚠️ No se pudo editar: Ya existe una cita el día {fecha_form} a las {hora_form} hs ({paciente_ocupado}).', 'warning')
+        return redirect('/')
+
     datos_actualizados = {
+        "fecha": fecha_form,
         "hora": hora_form,
         "paciente": paciente_form,
         "motivo": motivo_form
     }
 
     actualizar_cita_db(id, datos_actualizados)
+    flash('✅ Cita actualizada correctamente.', 'success')
     return redirect('/')

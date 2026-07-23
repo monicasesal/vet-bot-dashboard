@@ -11,11 +11,13 @@ db = cliente["vetbot_db"]
 
 print("Conectando a MongoDB para insertar datos...")
 
+fecha_hoy = datetime.now().strftime('%Y-%m-%d')
+
 # Datos de prueba para las Citas
 nuevas_citas = [
-    {"hora": "09:00", "paciente": "Max (Desde Mongo)", "motivo": "Revisión Cachorro"},
-    {"hora": "12:15", "paciente": "Kira (Desde Mongo)", "motivo": "Esterilización"},
-    {"hora": "17:30", "paciente": "Copito (Desde Mongo)", "motivo": "Corte de dientes"}
+    {"fecha": fecha_hoy, "hora": "09:00", "paciente": "Max (Desde Mongo)", "motivo": "Revisión Cachorro"},
+    {"fecha": fecha_hoy, "hora": "12:15", "paciente": "Kira (Desde Mongo)", "motivo": "Esterilización"},
+    {"fecha": fecha_hoy, "hora": "17:30", "paciente": "Copito (Desde Mongo)", "motivo": "Corte de dientes"}
 ]
 
 # Datos de prueba para los Chats de la IA

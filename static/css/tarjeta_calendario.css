@@ -1,11 +1,24 @@
-/* Componente: Tarjeta Calendario y Citas */
+/* TARJETA CALENDARIO Y CITAS (PROTAGONISTA) */
 .tarjeta.calendario {
     grid-column: span 2;
     grid-row: span 2;
     border-left: 5px solid #2ecc71;
 }
 
-/* Formulario agregar cita */
+/* Tarjeta Citas de Hoy */
+.tarjeta.citas-hoy {
+    grid-column: span 1;
+    grid-row: span 3; /* Ocupa 2 filas de alto en el Bento para destacar */
+    min-height: 520px;
+    max-height: 580px;
+    display: flex;
+    flex-direction: column;
+    border-left: 5px solid #2ecc71;
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.12);
+    background: #ffffff;
+}
+
+/* Formulario agregar cita rápido */
 .form-nueva-cita {
     margin-bottom: 20px;
     display: flex;
@@ -40,19 +53,50 @@
     background: #27ae60;
 }
 
-/* Lista de citas */
+/* LISTA DE CITAS Y SCROLL PERSONALIZADO */
 .lista-citas {
     margin-top: 15px;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Barra de scroll personalizada */
+.lista-citas::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lista-citas::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.lista-citas::-webkit-scrollbar-thumb {
+    background: #2ecc71;
+    border-radius: 10px;
+}
+
+.lista-citas::-webkit-scrollbar-thumb:hover {
+    background: #27ae60;
 }
 
 .cita-card {
     border: 1px solid #e0e0e0;
     padding: 12px 16px;
-    margin-bottom: 10px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #fdfdfd;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cita-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .cita-info strong {
@@ -95,9 +139,60 @@
 .citas-vacias {
     color: #777;
     font-style: italic;
+    padding: 20px 0;
+    text-align: center;
 }
 
-/* Modal flotante de edición */
+/* FORMULARIO AGENDAR CITA */
+.tarjeta.form-agendar {
+    grid-column: span 1;
+    border-left: 5px solid #3498db;
+}
+
+.form-agendar-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.grupo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.grupo-input label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+}
+
+.grupo-input input, .grupo-input textarea {
+    padding: 8px;
+    border: 1px solid #d5dbdb;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.btn-guardar-cita {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background 0.2s;
+}
+
+.btn-guardar-cita:hover {
+    background: #2980b9;
+}
+
+/* MODAL FLOTANTE DE EDICIÓN */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -117,6 +212,7 @@
     border-radius: 10px;
     width: 320px;
     color: #333;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 .modal-contenido h3 {
@@ -164,4 +260,70 @@
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+/* ALERTAS FLOTANTES (SIN EMPUJAR EL BENTO GRID) */
+.alerta-contenedor {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    width: calc(100% - 40px);
+}
+
+.alerta {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    animation: deslizarAviso 0.3s ease-out forwards;
+}
+
+@keyframes deslizarAviso {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alerta.warning { 
+    background-color: #fff3cd; 
+    color: #856404; 
+    border: 1px solid #ffeeba; 
+    border-left: 5px solid #e67e22;
+}
+
+.alerta.success { 
+    background-color: #d4edda; 
+    color: #155724; 
+    border: 1px solid #c3e6cb; 
+    border-left: 5px solid #2ecc71;
+}
+
+.btn-cerrar-alerta {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: inherit; /* Hereda el color del texto del aviso */
+    cursor: pointer;
+    margin-left: 12px;
+    padding: 0 4px;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-cerrar-alerta:hover {
+    opacity: 1;
+    transform: scale(1.2); /* Efecto sutil al pasar el ratón */
 }
