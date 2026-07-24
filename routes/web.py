@@ -118,7 +118,7 @@ def chat_admin():
                 "atendido_por": mensajes[-1].get("atendido_por", "bot")
             }
         
-    return render_template('chat.html', conversaciones=conversaciones, mensajes=mensajes, chat_actual=chat_actual)
+    return render_template('chat_admin.html', conversaciones=conversaciones, mensajes=mensajes, chat_actual=chat_actual)
 
 
 @web_blueprint.route('/chat/enviar', methods=['POST'])
