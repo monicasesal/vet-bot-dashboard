@@ -8,7 +8,7 @@
 /* Tarjeta Citas de Hoy */
 .tarjeta.citas-hoy {
     grid-column: span 1;
-    grid-row: span 3; /* Ocupa 2 filas de alto en el Bento para destacar */
+    grid-row: span 3; 
     min-height: 520px;
     max-height: 580px;
     display: flex;
@@ -16,6 +16,7 @@
     border-left: 5px solid #2ecc71;
     box-shadow: 0 8px 20px rgba(46, 204, 113, 0.12);
     background: #ffffff;
+    min-width: 0; 
 }
 
 /* Formulario agregar cita rápido */
@@ -37,6 +38,7 @@
     padding: 6px 10px;
     border: 1px solid #d5dbdb;
     border-radius: 6px;
+    min-width: 0; 
 }
 
 .btn-agregar {
@@ -57,6 +59,7 @@
 .lista-citas {
     margin-top: 15px;
     overflow-y: auto;
+    overflow-x: hidden; 
     flex: 1;
     padding-right: 6px;
     display: flex;
@@ -64,7 +67,7 @@
     gap: 10px;
 }
 
-/* Barra de scroll personalizada */
+/* Barra de scroll personalizada vertical */
 .lista-citas::-webkit-scrollbar {
     width: 6px;
 }
@@ -83,6 +86,7 @@
     background: #27ae60;
 }
 
+/* Tarjeta individual de Cita */
 .cita-card {
     border: 1px solid #e0e0e0;
     padding: 12px 16px;
@@ -92,6 +96,8 @@
     align-items: center;
     background: #fdfdfd;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 12px;
+    min-width: 0;
 }
 
 .cita-card:hover {
@@ -99,19 +105,29 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-.cita-info strong {
-    color: #111b21;
+.cita-info {
+    flex: 1;
+    min-width: 0;
 }
 
+.cita-info strong {
+    color: #111b21;
+    display: block;
+}
+
+/* Control del texto largo en el motivo */
 .cita-motivo {
     margin: 4px 0 0 0;
     color: #666;
     font-size: 14px;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .cita-acciones {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .btn-editar {
@@ -314,7 +330,7 @@
     border: none;
     font-size: 20px;
     font-weight: bold;
-    color: inherit; /* Hereda el color del texto del aviso */
+    color: inherit; 
     cursor: pointer;
     margin-left: 12px;
     padding: 0 4px;
@@ -325,5 +341,5 @@
 
 .btn-cerrar-alerta:hover {
     opacity: 1;
-    transform: scale(1.2); /* Efecto sutil al pasar el ratón */
+    transform: scale(1.2); 
 }

@@ -1,12 +1,17 @@
-/* Componente: Chats en Tiempo Real */
+.tarjeta.chat {
+    min-width: 0;
+}
+
 .lista-chats {
     max-height: 280px;
     overflow-y: auto;
+    overflow-x: hidden; 
 }
 
 .item-chat {
     margin-bottom: 12px;
     padding: 8px 0;
+    min-width: 0; 
 }
 
 .ultimo-msg {
@@ -14,6 +19,10 @@
     color: #7f8c8d;
     margin: 5px 0;
     font-size: 14px;
+    
+    /* CONTROL DE TEXTO LARGO */
+    overflow-wrap: break-word; 
+    word-break: break-word;  
 }
 
 .badge {

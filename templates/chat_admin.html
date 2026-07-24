@@ -12,7 +12,10 @@
     <!-- PANEL LATERAL -->
     <div class="sidebar">
         <div class="sidebar-header">
-            💬 Conversaciones Activas
+            <a href="{{ url_for('web.inicio') }}" class="btn-volver-dashboard" title="Volver al Dashboard">
+            ← Volver
+            </a>
+            <span class="sidebar-title">💬 Conversaciones</span>
         </div>
         <div class="chat-list">
             {% for conv in conversaciones %}
