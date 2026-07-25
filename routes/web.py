@@ -5,6 +5,7 @@ from urllib.parse import unquote
 from database.conexion import db, obtener_conversaciones, cambiar_estado_chat, eliminar_cita_db, actualizar_cita_db
 from datetime import datetime, timedelta
 from bson.objectid import ObjectId
+from utils.citas_utils import calcular_hora_fin, verificar_disponibilidad
 
 web_blueprint = Blueprint('web', __name__)
 
@@ -60,30 +61,32 @@ def inicio():
 
 @web_blueprint.route('/nueva-cita', methods=['POST'])
 def nueva_cita():
-    #recibe los datos del form, crea una nueva cita, la guarda en MongoDB y redirige a la pag principal
+    #recibe los datos del form, crea una nueva cita CON VALIDACIÓN DE SOLAPAMIENTO, la guarda en MongoDB y redirige a la pag principal
     hora_form = request.form.get('hora')
     fecha_form = request.form.get('fecha')
     paciente_form = request.form.get('paciente')
     motivo_form = request.form.get('motivo')
+    duracion_form = int(request.form.get('duracion', 30)) #la duración del form o 30min por defecto
 
     if not fecha_form:
         fecha_form = datetime.now().strftime('%Y-%m-%d')
 
-    #comprobar duplicado en la FECHA especificada y HORA especificada
-    cita_existente = db.citas.find_one({
-        'fecha': fecha_form,
-        'hora': hora_form
-    })
+    #verificar si hay solapamiento en Mongodb (reemplaza la consulta exacta antigua)
+    disponible, mensaje = verificar_disponibilidad(db, fecha_form, hora_form, duracion_form)
 
-    if cita_existente:
-        paciente_ocupado = cita_existente.get('paciente', 'otro paciente')
-        flash(f'⚠️ ¡Atención! Ya existe una cita para el día {fecha_form} a las {hora_form} hs (Paciente: {paciente_ocupado}).', 'warning')
+    if not disponible:
+        flash(f'⚠️ {mensaje}', 'warning')
         return redirect('/')
     
-    #guardar la cita con su fecha real
+    hora_fin_form = calcular_hora_fin(hora_form, duracion_form)
+
+
+    #guardar la cita
     cita_nueva = {
         "fecha": fecha_form,
         "hora": hora_form,
+        "duracion_minutos": duracion_form,
+        "hora_fin": hora_fin_form,
         "paciente": paciente_form,
         "motivo": motivo_form
     }
@@ -165,22 +168,23 @@ def editar_cita(id):
     hora_form = request.form.get('hora')
     paciente_form = request.form.get('paciente')
     motivo_form = request.form.get('motivo')
+    duracion_form = int(request.form.get('duracion', 30))
 
-    #Validar que otra cita no ocupe ese mismo día y hora
-    cita_duplicada = db.citas.find_one({
-        '_id': {'$ne': ObjectId(id)},
-        'fecha': fecha_form,
-        'hora': hora_form
-    })
+    #Verificar solapamiento al editar (Excluyendo el id actual de la cita)
+    disponible, mensaje = verificar_disponibilidad(db, fecha_form, hora_form, duracion_form, cita_id_excluir=id)
 
-    if cita_duplicada:
-        paciente_ocupado = cita_duplicada.get('paciente', 'otro paciente')
-        flash(f'⚠️ No se pudo editar: Ya existe una cita el día {fecha_form} a las {hora_form} hs ({paciente_ocupado}).', 'warning')
+    if not disponible:
+        flash(f'⚠️ No se pudo editar: {mensaje}', 'warning')
         return redirect('/')
+    
+    #actualizar datos en mongodb
+    hora_fin_form = calcular_hora_fin(hora_form, duracion_form)
 
     datos_actualizados = {
         "fecha": fecha_form,
         "hora": hora_form,
+        "duracion_minutos": duracion_form,
+        "hora_fin": hora_fin_form,
         "paciente": paciente_form,
         "motivo": motivo_form
     }
@@ -188,3 +192,4 @@ def editar_cita(id):
     actualizar_cita_db(id, datos_actualizados)
     flash('✅ Cita actualizada correctamente.', 'success')
     return redirect('/')
+

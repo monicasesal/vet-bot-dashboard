@@ -8,8 +8,19 @@
         </div>
 
         <div class="grupo-input">
-            <label>Hora:</label>
+            <label>Hora de inicio:</label>
             <input type="time" name="hora" required>
+        </div>
+
+        <div class="grupo-input">
+            <label>Duración estimada:</label>
+            <select name="duracion" required>
+                <option value="15">15 minutos (Vacunación / Revisión rápida)</option>
+                <option value="30" selected>30 minutos (Consulta general)</option>
+                <option value="45">45 minutos (Consulta compleja / Ecografía)</option>
+                <option value="60">60 minutos (Procedimiento / Cirugía corta)</option>
+                <option value="90">90 minutos (Cirugía mayor)</option>
+            </select>
         </div>
 
         <div class="grupo-input">

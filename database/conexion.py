@@ -11,7 +11,7 @@ cliente = MongoClient(os.getenv("MONGO_URI"), tls=True, tlsAllowInvalidCertifica
 
 db = cliente["vetbot_db"]
 
-# Funciones consulta de chats
+# FUNCIONES DE CHATS
 
 def obtener_conversaciones():
     """Devuelve la lista de chats únicos con el último mensaje"""
@@ -36,6 +36,12 @@ def cambiar_estado_chat(telefono, nuevo_estado):
         {"$set": {"atendido_por": nuevo_estado}}
     )
 
+# FUNCIONES DE CITAS
+
+def agregar_cita_db(datos_cita):
+    """Inserta una nueva cita en MongoDB"""
+    return db.citas.insert_one(datos_cita)
+
 def eliminar_cita_db(cita_id):
     """Elimina una cita por su ID de MongoDB"""
     db.citas.delete_one({"_id": ObjectId(cita_id)})
@@ -44,4 +50,3 @@ def actualizar_cita_db(cita_id, datos_actualizados):
     """Actualiza los datos de una cita existente"""
     db.citas.update_one({"_id": ObjectId(cita_id)}, {"$set": datos_actualizados})
 
-    
