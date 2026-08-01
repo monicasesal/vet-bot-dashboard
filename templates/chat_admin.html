@@ -19,7 +19,9 @@
         </div>
         <div class="chat-list">
             {% for conv in conversaciones %}
-            <a href="{{ url_for('web.chat_admin', telefono=conv.telefono) }}" class="chat-item {% if chat_actual and chat_actual.telefono == conv.telefono %}active{% endif %}">
+            <a href="{{ url_for('web.chat_admin', telefono=conv.telefono) }}" 
+            class="chat-item {% if chat_actual and chat_actual.telefono == conv.telefono %}active{% endif %} {% if conv.sin_leer > 0 %}chat-unread{% endif %}">
+                
                 <div class="avatar">
                     {% if conv.foto_url %}
                         <img src="{{ conv.foto_url }}" alt="Foto" class="avatar-img">
@@ -27,14 +29,23 @@
                         {{ conv.nombre[0] if conv.nombre else 'C' }}
                     {% endif %}
                 </div>
+                
                 <div class="chat-info">
                     <div class="chat-name">
-                        <span>{{ conv.nombre or conv.telefono }}</span>
+                        <span class="chat-user-title">{{ conv.nombre or conv.telefono }}</span>
                         <span class="badge-mode {% if conv.atendido_por == 'humano' %}badge-humano{% else %}badge-bot{% endif %}">
                             {{ conv.atendido_por or 'bot' }}
                         </span>
                     </div>
-                    <div class="chat-last-msg">{{ conv.ultimo_mensaje }}</div>
+                    
+                    <div class="chat-last-row">
+                        <span class="chat-last-msg">{{ conv.ultimo_mensaje }}</span>
+                        
+                        <!-- CIRCULITO VERDE DE MENSAJES SIN LEER -->
+                        {% if conv.sin_leer > 0 %}
+                            <span class="badge-unread">{{ conv.sin_leer }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </a>
             {% else %}
@@ -99,6 +110,25 @@
     </div>
     {% endif %}
 </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Buscar todas las burbujas de mensaje
+        document.querySelectorAll('.message-bubble').forEach(function(bubble) {
+            // Guardar el rol (el div con class "message-role")
+            var roleHeader = bubble.querySelector('.message-role')
+            var roleHTML = roleHeader ? roleHeader.outerHTML : ''
+            
+            // Obtener el texto del mensaje excluyendo el header del rol
+            var rawText = bubble.innerText.replace(roleHeader ? roleHeader.innerText : '', '').trim()
+            
+            // Convertir Markdown a HTML renderizado
+            if (rawText) {
+                bubble.innerHTML = roleHTML + marked.parse(rawText)
+            }
+        })
+    })
+</script>
 </body>
 </html>

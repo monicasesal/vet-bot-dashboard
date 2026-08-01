@@ -25,6 +25,12 @@ def inicio():
     inicio_semana_str = inicio_semana.strftime('%Y-%m-%d')
     inicio_mes_str = hoy.strftime('%Y-%m-01')
 
+    # Asegurar 'hora_fin' en todas las citas
+    for cita in citas_desde_mongo:
+        if 'hora' in cita and not cita.get('hora_fin'):
+            duracion = cita.get('duracion_minutos', 30)
+            cita['hora_fin'] = calcular_hora_fin(cita['hora'], duracion)
+
     # Filtrar solo las citas de hoy para la tarjeta principal
     citas_hoy = [c for c in citas_desde_mongo if c.get('fecha') == fecha_hoy_str or not c.get('fecha')]
 
@@ -102,6 +108,13 @@ def chat_admin():
     telefono_raw = request.args.get('telefono')
 
     telefono_seleccionado = unquote(telefono_raw) if telefono_raw else None
+
+    #si hay un chat seleccionado, marcamos sus mensajes como LEÍDOS
+    if telefono_seleccionado:
+        db.chats.update_many(
+            {"telefono": telefono_seleccionado, "rol": "user", "leido": False},
+            {"$set": {"leido": True}}
+        )
 
     #obtener la lista de todos los chats para la barra lateral
     conversaciones = obtener_conversaciones()

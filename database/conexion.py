@@ -14,20 +14,32 @@ db = cliente["vetbot_db"]
 # FUNCIONES DE CHATS
 
 def obtener_conversaciones():
-    """Devuelve la lista de chats únicos con el último mensaje"""
-    # Agrupar por usuario/teléfono para el panel lateral
-    return list(db.chats.aggregate([
-        {"$sort": {"fecha": -1}},
-        {"$group": {
-            "_id": "$telefono",
-            "telefono": {"$first": "$telefono"},
-            "nombre": {"$first": "$nombre"},
-            "ultimo_mensaje": {"$first": "$mensaje"},
-            "fecha": {"$first": "$fecha"},
-            "atendido_por": {"$first": "$atendido_por"} #bot o humano
+    """Devuelve la lista con el último mensaje primero"""
+    pipeline = [
+        {"$sort": {"fecha": 1}},  # Ordena mensajes por fecha ascendente primero
+        {
+            "$group": {
+                "_id": "$telefono",
+                "telefono": {"$first": "$telefono"},
+                "nombre": {"$last": "$nombre"},
+                "ultimo_mensaje": {"$last": "$mensaje"},
+                "ultima_fecha": {"$last": "$fecha"},
+                "atendido_por": {"$last": "$atendido_por"},
+                "sin_leer": {
+                    "$sum": {
+                        "$cond": [
+                            {"$and": [{"$eq": ["$leido", False]}, {"$eq": ["$rol", "user"]}]},
+                            1,
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        {"$sort": {"ultima_fecha": -1}}  # Sube los chats con mensajes más recientes ARRIBA
+    ]
+    return list(db.chats.aggregate(pipeline))
 
-        }}
-    ]))
 
 def cambiar_estado_chat(telefono, nuevo_estado):
     """Actualiza el campo atendido_por para todas las interacciones de un telefono"""

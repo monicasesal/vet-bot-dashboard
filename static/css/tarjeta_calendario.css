@@ -1,4 +1,3 @@
-/* TARJETA CALENDARIO Y CITAS (PROTAGONISTA) */
 .tarjeta.calendario {
     grid-column: span 2;
     grid-row: span 2;
@@ -112,7 +111,8 @@
 
 .cita-info strong {
     color: #111b21;
-    display: block;
+    display: inline-block;
+    margin-right: 4px;
 }
 
 /* Control del texto largo en el motivo */
@@ -184,12 +184,15 @@
     color: #333;
 }
 
-.grupo-input input, .grupo-input textarea {
+.grupo-input input, 
+.grupo-input textarea, 
+.grupo-input select {
     padding: 8px;
     border: 1px solid #d5dbdb;
     border-radius: 6px;
     font-size: 13px;
     font-family: inherit;
+    background-color: #ffffff;
 }
 
 .btn-guardar-cita {
@@ -247,11 +250,16 @@
     margin-bottom: 4px;
 }
 
-.campo-form input {
+.campo-form input,
+.campo-form textarea,
+.campo-form select {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
 }
 
 .modal-acciones {

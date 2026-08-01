@@ -5,7 +5,7 @@
         {% for cita in mis_citas_hoy %}
         <div class="cita-card">
             <div class="cita-info">
-                <strong>🕒 {{ cita.hora }} hs</strong> - 🐾 <strong>{{ cita.paciente }}</strong>
+                <strong>🕒 {{ cita.hora }} {% if cita.hora_fin%}- {{cita.hora_fin}}{% endif %} hs</strong> - 🐾 <strong>{{ cita.paciente }}</strong>
                 <p class="cita-motivo">{{ cita.motivo }}</p>
             </div>
 
@@ -30,8 +30,18 @@
                         <input type="date" name="fecha" value="{{ cita.fecha or fecha_hoy }}" required>
                     </div>
                     <div class="campo-form">
-                        <label>Hora:</label>
+                        <label>Hora de inicio:</label>
                         <input type="time" name="hora" value="{{ cita.hora }}" required>
+                    </div>
+                    <div class="campo-form">
+                        <label>Duración:</label>
+                        <select name="duracion" required>
+                            <option value="15" {% if cita.duracion_minutos == 15 %}selected{% endif %}>15 minutos</option>
+                            <option value="30" {% if cita.duracion_minutos == 30 or not cita.duracion_minutos %}selected{% endif %}>30 minutos</option>
+                            <option value="45" {% if cita.duracion_minutos == 45 %}selected{% endif %}>45 minutos</option>
+                            <option value="60" {% if cita.duracion_minutos == 60 %}selected{% endif %}>60 minutos (1 hora)</option>
+                            <option value="90" {% if cita.duracion_minutos == 90 %}selected{% endif %}>90 minutos</option>
+                        </select>
                     </div>
                     <div class="campo-form">
                         <label>Paciente:</label>

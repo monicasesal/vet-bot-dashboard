@@ -321,3 +321,61 @@ body {
     font-size: 14px;
     color: #888;
 }
+
+/* Fila inferior dentro de la información del chat */
+.chat-last-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    width: 100%;
+}
+
+/* Ajuste del ancho del mensaje para dar espacio al contador */
+.chat-item .chat-last-msg {
+    flex: 1;
+    min-width: 0;
+    margin-right: 8px;
+}
+
+/* Resaltado cuando hay mensajes sin leer */
+.chat-item.chat-unread .chat-user-title {
+    font-weight: 700 !important;
+    color: #111b21;
+}
+
+.chat-item.chat-unread .chat-last-msg {
+    font-weight: 600 !important;
+    color: #111b21;
+}
+
+/* Círculo/Globo verde indicador de mensajes sin leer */
+.badge-unread {
+    background-color: #25d366;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* Formato interno de mensajes interpretados desde Markdown */
+.message-bubble p {
+    margin: 4px 0;
+}
+
+.message-bubble ul, .message-bubble ol {
+    margin: 6px 0;
+    padding-left: 20px;
+}
+
+.message-bubble strong {
+    font-weight: bold;
+}
