@@ -17,11 +17,12 @@
             </a>
             <span class="sidebar-title">💬 Conversaciones</span>
         </div>
-        <div class="chat-list">
+        <div class="chat-list" id="chat-list">
             {% for conv in conversaciones %}
-            <a href="{{ url_for('web.chat_admin', telefono=conv.telefono) }}" 
+            <a href="{{ url_for('web.chat_admin', telefono=conv.telefono) }}"
+            data-telefono="{{ conv.telefono }}"
             class="chat-item {% if chat_actual and chat_actual.telefono == conv.telefono %}active{% endif %} {% if conv.sin_leer > 0 %}chat-unread{% endif %}">
-                
+
                 <div class="avatar">
                     {% if conv.foto_url %}
                         <img src="{{ conv.foto_url }}" alt="Foto" class="avatar-img">
@@ -29,7 +30,7 @@
                         {{ conv.nombre[0] if conv.nombre else 'C' }}
                     {% endif %}
                 </div>
-                
+
                 <div class="chat-info">
                     <div class="chat-name">
                         <span class="chat-user-title">{{ conv.nombre or conv.telefono }}</span>
@@ -37,10 +38,10 @@
                             {{ conv.atendido_por or 'bot' }}
                         </span>
                     </div>
-                    
+
                     <div class="chat-last-row">
                         <span class="chat-last-msg">{{ conv.ultimo_mensaje }}</span>
-                        
+
                         <!-- CIRCULITO VERDE DE MENSAJES SIN LEER -->
                         {% if conv.sin_leer > 0 %}
                             <span class="badge-unread">{{ conv.sin_leer }}</span>
@@ -77,7 +78,11 @@
             </form>
         </div>
 
-        <div class="messages-container">
+        <div class="messages-container"
+             id="messages-container"
+             data-telefono="{{ chat_actual.telefono }}"
+             data-last-id="{{ mensajes[-1]._id if mensajes else '' }}"
+             data-nombre-cliente="{{ chat_actual.nombre }}">
             {% for msg in mensajes %}
             <div class="message-bubble {% if msg.rol == 'user' %}message-user{% else %}message-assistant{% endif %}">
                 <div class="message-role">
@@ -114,21 +119,145 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Buscar todas las burbujas de mensaje
+        // Buscar todas las burbujas de mensaje ya renderizadas por el servidor
         document.querySelectorAll('.message-bubble').forEach(function(bubble) {
             // Guardar el rol (el div con class "message-role")
             var roleHeader = bubble.querySelector('.message-role')
             var roleHTML = roleHeader ? roleHeader.outerHTML : ''
-            
+
             // Obtener el texto del mensaje excluyendo el header del rol
             var rawText = bubble.innerText.replace(roleHeader ? roleHeader.innerText : '', '').trim()
-            
+
             // Convertir Markdown a HTML renderizado
             if (rawText) {
                 bubble.innerHTML = roleHTML + marked.parse(rawText)
             }
         })
     })
+</script>
+
+<script>
+// ---------------------------------------------------------------------------
+// TIEMPO REAL: antes había que darle a "actualizar" (F5) para ver los mensajes
+// nuevos, porque la página solo se rellenaba una vez al cargarla. Ahora el
+// navegador pregunta cada pocos segundos si hay mensajes nuevos y los añade
+// directamente, sin recargar toda la página (así no se pierde el scroll ni lo
+// que estés escribiendo en el campo de respuesta).
+// ---------------------------------------------------------------------------
+(function () {
+    var container = document.getElementById('messages-container');
+    if (!container) return; // no hay ninguna conversación abierta ahora mismo
+
+    var telefono = container.dataset.telefono;
+    var lastId = container.dataset.lastId || '';
+    var nombreCliente = container.dataset.nombreCliente || 'Cliente';
+
+    function escapeHtml(str) {
+        return (str || '').replace(/[&<>"']/g, function (m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+        });
+    }
+
+    function crearBurbuja(msg) {
+        var div = document.createElement('div');
+        div.className = 'message-bubble ' + (msg.rol === 'user' ? 'message-user' : 'message-assistant');
+
+        var roleDiv = document.createElement('div');
+        roleDiv.className = 'message-role';
+        if (msg.rol === 'user') {
+            roleDiv.textContent = nombreCliente;
+        } else {
+            roleDiv.textContent = (msg.atendido_por === 'humano') ? '👨‍⚕️ VetBot (Humano)' : '🤖 VetBot (IA)';
+        }
+        div.appendChild(roleDiv);
+
+        var contenidoHtml = (typeof marked !== 'undefined')
+            ? marked.parse(msg.mensaje || '')
+            : escapeHtml(msg.mensaje || '');
+        div.insertAdjacentHTML('beforeend', contenidoHtml);
+
+        return div;
+    }
+
+    function actualizarSelectorEstado(atendidoPorActual) {
+        var select = document.querySelector('.select-atendido');
+        if (select && select.value !== atendidoPorActual) {
+            select.value = atendidoPorActual;
+        }
+    }
+
+    function refrescarMensajes() {
+        var url = '/chat/api/mensajes?telefono=' + encodeURIComponent(telefono) + '&after_id=' + encodeURIComponent(lastId);
+        fetch(url)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.mensajes && data.mensajes.length > 0) {
+                    // Solo hacemos autoscroll si ya estaba mirando el final de la conversación
+                    var estabaAbajo = (container.scrollHeight - container.scrollTop - container.clientHeight) < 80;
+
+                    data.mensajes.forEach(function (msg) {
+                        container.appendChild(crearBurbuja(msg));
+                        lastId = msg.id;
+                    });
+
+                    if (estabaAbajo) {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                }
+                if (data.atendido_por_actual) {
+                    actualizarSelectorEstado(data.atendido_por_actual);
+                }
+            })
+            .catch(function (err) { console.error('Error refrescando mensajes:', err); });
+    }
+
+    setInterval(refrescarMensajes, 3000);
+})();
+
+// Refresco de la barra lateral (últimos mensajes, badges de "sin leer" y modo bot/humano)
+(function () {
+    var chatList = document.getElementById('chat-list');
+    if (!chatList) return;
+
+    function refrescarSidebar() {
+        fetch('/chat/api/conversaciones')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                data.conversaciones.forEach(function (conv) {
+                    var link = chatList.querySelector('a.chat-item[data-telefono="' + CSS.escape(conv.telefono) + '"]');
+                    if (!link) return; // conversación nueva que aún no está en la lista - aparecerá al recargar
+
+                    var lastMsgEl = link.querySelector('.chat-last-msg');
+                    if (lastMsgEl) lastMsgEl.textContent = conv.ultimo_mensaje;
+
+                    var badgeMode = link.querySelector('.badge-mode');
+                    if (badgeMode) {
+                        badgeMode.textContent = conv.atendido_por;
+                        badgeMode.classList.toggle('badge-humano', conv.atendido_por === 'humano');
+                        badgeMode.classList.toggle('badge-bot', conv.atendido_por !== 'humano');
+                    }
+
+                    var lastRow = link.querySelector('.chat-last-row');
+                    var badgeUnread = link.querySelector('.badge-unread');
+                    if (conv.sin_leer > 0) {
+                        if (!badgeUnread && lastRow) {
+                            badgeUnread = document.createElement('span');
+                            badgeUnread.className = 'badge-unread';
+                            lastRow.appendChild(badgeUnread);
+                        }
+                        if (badgeUnread) badgeUnread.textContent = conv.sin_leer;
+                        link.classList.add('chat-unread');
+                    } else {
+                        if (badgeUnread) badgeUnread.remove();
+                        link.classList.remove('chat-unread');
+                    }
+                });
+            })
+            .catch(function (err) { console.error('Error refrescando sidebar:', err); });
+    }
+
+    setInterval(refrescarSidebar, 5000);
+})();
 </script>
 </body>
 </html>

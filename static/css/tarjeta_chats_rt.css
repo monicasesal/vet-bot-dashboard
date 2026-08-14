@@ -5,13 +5,24 @@
 .lista-chats {
     max-height: 280px;
     overflow-y: auto;
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
+/* Cada conversación urgente ahora es un enlace (<a>) directo a su chat */
 .item-chat {
+    display: block;
     margin-bottom: 12px;
-    padding: 8px 0;
-    min-width: 0; 
+    padding: 10px 12px;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.item-chat:hover {
+    background-color: #fdf1f0;
 }
 
 .ultimo-msg {
@@ -19,10 +30,10 @@
     color: #7f8c8d;
     margin: 5px 0;
     font-size: 14px;
-    
+
     /* CONTROL DE TEXTO LARGO */
-    overflow-wrap: break-word; 
-    word-break: break-word;  
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .badge {
@@ -42,4 +53,63 @@
     background-color: #fdebd0;
     color: #e67e22;
     border: 1px solid #e67e22;
+}
+
+/* --- NUEVO: tarjeta de "Requieren Atención Humana" --- */
+
+.tarjeta.alertas h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Contador numérico junto al título */
+.contador-urgentes {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background-color: #e74c3c;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* Cada item individual marcado como urgente */
+.item-chat-urgente {
+    border-left: 4px solid #e74c3c;
+    background-color: #fff5f4;
+}
+
+.item-chat-urgente .badge.urgente {
+    background-color: #fdecea;
+    color: #c0392b;
+    border-color: #e74c3c;
+}
+
+/* Estado de la TARJETA ENTERA cuando hay al menos un chat urgente: para que la
+   veterinaria lo note "enseguida", como pedía el requisito, sin tener que leer
+   el contador. Un borde y una sombra roja bastan sin ser demasiado agresivos. */
+.tarjeta.alertas.alertas-urgente {
+    border: 2px solid #e74c3c;
+    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.12);
+    animation: pulso-alerta 2s ease-in-out infinite;
+}
+
+@keyframes pulso-alerta {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.12);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(231, 76, 60, 0.22);
+    }
+}
+
+.sin-urgentes {
+    color: #27ae60;
+    font-size: 14px;
+    padding: 10px 0;
 }

@@ -154,11 +154,6 @@ def obtener_agenda_proximos_dias(dias=7, duracion_minutos=30):
     return resumen_agenda
 
 
-def obtener_cita_activa(telefono):
-    """NUEVO: Devuelve la cita activa de un teléfono (o None). La usa ia.py para dar contexto al modelo."""
-    return db.citas.find_one({"telefono": telefono})
-
-
 def obtener_citas_activas(telefono):
     """Devuelve TODAS las citas activas de un teléfono (puede tener varias, una
     por mascota). Sustituye a la antigua obtener_cita_activa, que solo devolvía
@@ -167,8 +162,8 @@ def obtener_citas_activas(telefono):
 
 
 def obtener_cita_activa(telefono):
-    """DEPRECATED: mantenida por compatibilidad, devuelve solo la primera cita
-    activa. Usa obtener_citas_activas() en código nuevo."""
+    """Devuelve la primera cita activa encontrada para un teléfono.
+    Mantenida para retrocompatibilidad con funciones que solo esperan un único documento"""
     return db.citas.find_one({"telefono": telefono})
 
 

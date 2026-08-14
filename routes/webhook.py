@@ -118,9 +118,12 @@ def recibir_mensaje():
     # 5. Evaluar y limpiar la etiqueta de transferencia a humano
     if "TRANSFERIR_HUMANO" in respuesta_ia:
         atendido_por = "humano"
-        respuesta_ia = re.sub(r'\[?TRANSFERIR_HUMANO\]?\.?', '', respuesta_ia).strip()
-        if not respuesta_ia:
-            respuesta_ia = "Entendido. Un momento por favor, le transfiero la conversación con nuestro equipo veterinario."
+        # Frase FIJA exigida por el negocio: siempre la misma, sin importar lo que
+        # haya escrito el modelo alrededor de la etiqueta. Así el cliente recibe
+        # siempre un mensaje claro y predecible al ser transferido a un humano, y
+        # el texto no depende de que el modelo lo redacte bien en cada ocasión.
+        respuesta_ia = ("Estoy a punto de transferirte con la veterinaria. Por favor, "
+                         "espera un momento mientras te conecto con ella.")
 
     # 6. Detectar órdenes enviadas por la IA y ejecutarlas en MongoDB.
     respuesta_final = None
@@ -263,8 +266,16 @@ def recibir_mensaje():
     # 7c. RED DE SEGURIDAD: el modelo a veces dice que una hora CONCRETA está
     # "cerrada" u "ocupada" sin que eso sea cierto y sin generar una etiqueta válida.
     if not respuesta_final:
+        # FIX: antes el patrón buscaba CUALQUIER hora seguida de "cerrado/ocupado" en
+        # los siguientes 40 caracteres, lo que producía falsos positivos cuando el
+        # modelo mencionaba una hora en un contexto distinto (p.ej. "de 15:00 a 20:30"
+        # describiendo el horario general) cerca de la palabra "cerrado" referida a
+        # otra cosa (p.ej. "ahora mismo ya hemos cerrado"). Ahora exigimos que la hora
+        # vaya precedida de "a las"/"para las", que es como se frasea de verdad un
+        # rechazo de una hora concreta ("a las 18:00 ya estamos cerrados"), y no un
+        # horario general.
         match_rechazo = re.search(
-            r'(\d{1,2}:\d{2}).{0,40}?(cerrad|ocupad|no\s+(?:hay|tenemos)\s+disponib)',
+            r'(?:a\s+las|de\s+las|para\s+las)\s+(\d{1,2}:\d{2}).{0,50}?(cerrad|ocupad|no\s+(?:hay|tenemos)\s+disponib)',
             respuesta_ia, re.IGNORECASE
         )
         if match_rechazo:
@@ -277,6 +288,14 @@ def recibir_mensaje():
 
             if dentro_horario:
                 duracion_check = estimar_duracion_por_motivo(cita_referencia.get("motivo") if cita_referencia else None)
+                # FIX: NO excluimos ninguna cita_id aquí. Este filtro es solo una comprobación de
+                # lectura (no ejecuta ningún cambio), y no sabemos con certeza si la hora mencionada
+                # se refiere a la ÚNICA cita activa (p.ej. un reagendado de esa misma mascota) o a
+                # una mascota DISTINTA que choca contra esa cita ya existente (como pasó con Pipo
+                # bloqueando el hueco de Loki). Excluir la cita aquí puede ocultar un conflicto real
+                # y hacernos "corregir" al modelo diciendo que hay hueco cuando en realidad NO lo hay
+                # - eso es mucho peor (riesgo de doble reserva) que dejar pasar el mensaje del modelo
+                # tal cual en el caso raro de que sea la propia mascota reagendando.
                 disponible_real, msg_disp = verificar_disponibilidad(
                     db, fecha_objetivo, hora_mencionada, duracion_check, cita_id_excluir=None
                 )

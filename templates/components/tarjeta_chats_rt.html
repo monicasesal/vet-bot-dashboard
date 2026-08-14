@@ -1,19 +1,66 @@
-<div class="tarjeta alertas">
-    <h2>💬 Chats en Tiempo Real</h2>
+<div class="tarjeta alertas {% if chats_atencion_humana %}alertas-urgente{% endif %}" id="tarjeta-atencion-humana">
+    <h2>
+        🚨 Requieren Atención Humana
+        {% if chats_atencion_humana %}
+            <span class="contador-urgentes">{{ chats_atencion_humana|length }}</span>
+        {% endif %}
+    </h2>
 
-    <div class="lista-chats">
-        {% for chat in los_chats %}
-        <div class="item-chat">
-            <strong>{{ chat.usuario }}</strong>
-            <p class="ultimo-msg">"{{ chat.mensaje }}"</p>
-
-            {% if chat.atendido_por == "Humano" %}
-                <span class="badge urgente">🚨 Requiere Humano</span>
-            {% else %}
-                <span class="badge bot">🤖 Respondido por IA</span>
-            {% endif %}
-        </div>
-        <hr>
+    <div class="lista-chats" id="lista-atencion-humana">
+        {% for chat in chats_atencion_humana %}
+        <a href="{{ url_for('web.chat_admin', telefono=chat.telefono) }}" class="item-chat item-chat-urgente">
+            <strong>{{ chat.nombre or chat.telefono }}</strong>
+            <p class="ultimo-msg">"{{ chat.ultimo_mensaje }}"</p>
+            <span class="badge urgente">🚨 Esperando respuesta humana</span>
+        </a>
+        {% else %}
+        <p class="sin-urgentes">✅ No hay conversaciones esperando atención humana ahora mismo.</p>
         {% endfor %}
     </div>
 </div>
+
+<script>
+(function () {
+    function escapeHtml(str) {
+        return (str || '').replace(/[&<>"']/g, function (m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+        });
+    }
+
+    function refrescarAtencionHumana() {
+        fetch("{{ url_for('web.api_chats_atencion_humana') }}")
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var tarjeta = document.getElementById('tarjeta-atencion-humana');
+                var lista = document.getElementById('lista-atencion-humana');
+                if (!tarjeta || !lista) return;
+
+                tarjeta.classList.toggle('alertas-urgente', data.total > 0);
+
+                var titulo = tarjeta.querySelector('h2');
+                var contadorHtml = data.total > 0
+                    ? ' <span class="contador-urgentes">' + data.total + '</span>'
+                    : '';
+                titulo.innerHTML = '🚨 Requieren Atención Humana' + contadorHtml;
+
+                if (data.total === 0) {
+                    lista.innerHTML = '<p class="sin-urgentes">✅ No hay conversaciones esperando atención humana ahora mismo.</p>';
+                    return;
+                }
+
+                lista.innerHTML = data.chats.map(function (chat) {
+                    var telefonoCod = encodeURIComponent(chat.telefono);
+                    return '<a href="/chat?telefono=' + telefonoCod + '" class="item-chat item-chat-urgente">' +
+                        '<strong>' + escapeHtml(chat.nombre) + '</strong>' +
+                        '<p class="ultimo-msg">"' + escapeHtml(chat.ultimo_mensaje) + '"</p>' +
+                        '<span class="badge urgente">🚨 Esperando respuesta humana</span>' +
+                        '</a>';
+                }).join('');
+            })
+            .catch(function (err) { console.error('Error refrescando atención humana:', err); });
+    }
+
+    // Cada 8 segundos comprobamos si hay conversaciones nuevas esperando a un humano
+    setInterval(refrescarAtencionHumana, 8000);
+})();
+</script>
